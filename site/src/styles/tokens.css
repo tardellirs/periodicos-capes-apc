@@ -1,0 +1,76 @@
+/* Design tokens from stitch/DESIGN.md — Portal de Excelência Acadêmica */
+
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  /* Primary palette */
+  --primary:           #001e40;
+  --primary-hover:     #002d5c;
+  --secondary:         #0095f8;
+  --secondary-hover:   #0080d8;
+  --on-primary:        #ffffff;
+
+  /* Surfaces */
+  --surface:                  #f9f9ff;
+  --surface-dim:              #cfdaf1;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low:    #f0f3ff;
+  --surface-container:        #e7eeff;
+  --surface-container-high:   #dee8ff;
+
+  /* Text */
+  --on-surface:         #111c2c;
+  --on-surface-variant: #43474f;
+  --inverse-on-surface: #ebf1ff;
+
+  /* Borders */
+  --outline:         #737780;
+  --outline-variant: #c3c6d1;
+
+  /* Semantic */
+  --error:   #ba1a1a;
+  --success: #00695c;
+
+  /* Typography */
+  --font-display: 'Public Sans', sans-serif;
+  --font-body:    'Inter', sans-serif;
+
+  /* Spacing (8px grid) */
+  --space-1:  8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+  --space-6: 48px;
+
+  /* Layout */
+  --container-max:    1200px;
+  --sidebar-width:    280px;
+  --gutter:           24px;
+  --margin-desktop:   32px;
+  --margin-mobile:    16px;
+
+  /* Radii */
+  --radius-sm:  0.25rem;   /* 4px  */
+  --radius-md:  0.5rem;    /* 8px  */
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-float:   0 4px 12px rgba(0, 30, 64, 0.08);
+  --shadow-modal:   0 16px 48px rgba(0, 30, 64, 0.18);
+
+  /* Qualis chip colors */
+  --qualis-a1: #00695c;
+  --qualis-a2: #1565c0;
+  --qualis-a3: #6a1b9a;
+  --qualis-a4: #7b1fa2;
+  --qualis-b1: #e65100;
+  --qualis-b2: #bf360c;
+  --qualis-b3: #b71c1c;
+  --qualis-b4: #880e4f;
+  --qualis-c:  #616161;
+
+  /* Transitions */
+  --transition-fast:   150ms ease;
+  --transition-normal: 250ms ease;
+}
