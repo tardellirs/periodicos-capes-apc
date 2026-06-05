@@ -4,6 +4,9 @@
 
 **Catálogo pesquisável de periódicos científicos elegíveis para publicação em acesso aberto sem custo de APC, sob os acordos transformativos da CAPES.**
 
+### 🌐 [periodicos.ifsp.dev](https://periodicos.ifsp.dev)
+
+[![Site](https://img.shields.io/badge/Acessar-periodicos.ifsp.dev-001e40?logo=googlechrome&logoColor=white)](https://periodicos.ifsp.dev)
 [![Frontend](https://img.shields.io/badge/Frontend-TypeScript%20%2B%20Vite-3178C6?logo=typescript&logoColor=white)](#frontend)
 [![Pipeline](https://img.shields.io/badge/Pipeline-Python%203-3776AB?logo=python&logoColor=white)](#pipeline-de-dados)
 [![Banco](https://img.shields.io/badge/Banco-SQLite-003B57?logo=sqlite&logoColor=white)](#pipeline-de-dados)
