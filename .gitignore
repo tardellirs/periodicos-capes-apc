@@ -1,0 +1,31 @@
+# ─── Dependências e builds ───────────────────────────────────────────────────
+site/node_modules/
+site/dist/
+site/test-results/
+site/playwright-report/
+
+# ─── Python ──────────────────────────────────────────────────────────────────
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# ─── Sistema operacional / editor ────────────────────────────────────────────
+.DS_Store
+*.swp
+
+# ─── Fontes brutas de terceiros (copyright) — não redistribuir ───────────────
+data/00_raw/
+
+# ─── Artefatos gerados pela pipeline (reproduzíveis) ─────────────────────────
+acordos.db
+acordos.db-wal
+acordos.db-shm
+data/01_processed/
+
+# ─── Material de design privado ──────────────────────────────────────────────
+stitch/
+
+# ─── Notas internas de desenvolvimento ───────────────────────────────────────
+.claude/
+CLAUDE.md
