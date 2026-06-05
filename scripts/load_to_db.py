@@ -14,6 +14,7 @@ DB_FILE = ROOT / "acordos.db"
 
 def create_schema(conn: sqlite3.Connection) -> None:
     conn.executescript("""
+        DROP TABLE IF EXISTS journals_fts;
         DROP TABLE IF EXISTS journal_qualis;
         DROP TABLE IF EXISTS journals;
 
@@ -32,7 +33,12 @@ def create_schema(conn: sqlite3.Connection) -> None:
             url             TEXT,
             qualis_best     TEXT,
             impact_factor   REAL,
-            acronym         TEXT
+            acronym         TEXT,
+            cites_per_doc   REAL,
+            quartile        TEXT,
+            sjr             REAL,
+            h_index         INTEGER,
+            metric_source   TEXT
         );
 
         CREATE TABLE journal_qualis (
@@ -65,8 +71,9 @@ def load(conn: sqlite3.Connection, journals: list[dict]) -> None:
         INSERT INTO journals
             (title, publisher, issn, eissn, open_access_type, license,
              primary_area, main_discipline, subject_area, imprint, url,
-             qualis_best, impact_factor, acronym)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+             qualis_best, impact_factor, acronym,
+             cites_per_doc, quartile, sjr, h_index, metric_source)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     """
     insert_qualis = """
         INSERT OR IGNORE INTO journal_qualis (journal_id, area, estrato)
@@ -75,7 +82,8 @@ def load(conn: sqlite3.Connection, journals: list[dict]) -> None:
 
     for j in journals:
         metrics = j.get("metrics") or {}
-        impact_factor = metrics.get("impact_factor") if isinstance(metrics, dict) else None
+        if not isinstance(metrics, dict):
+            metrics = {}
 
         cur = conn.execute(insert_journal, (
             j.get("title"),
@@ -90,8 +98,13 @@ def load(conn: sqlite3.Connection, journals: list[dict]) -> None:
             j.get("imprint"),
             j.get("url"),
             j.get("qualis_best"),
-            impact_factor,
+            metrics.get("impact_factor"),
             j.get("acronym"),
+            metrics.get("cites_per_doc"),
+            metrics.get("quartile"),
+            metrics.get("sjr"),
+            metrics.get("h_index"),
+            metrics.get("metric_source"),
         ))
         journal_id = cur.lastrowid
 

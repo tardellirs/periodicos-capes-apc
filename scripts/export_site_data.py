@@ -25,7 +25,8 @@ def main() -> None:
                open_access_type AS oa, license,
                primary_area AS area, main_discipline,
                imprint, url, qualis_best,
-               impact_factor, acronym
+               impact_factor, acronym,
+               cites_per_doc, quartile, sjr, h_index, metric_source
         FROM journals
         ORDER BY title COLLATE NOCASE
     """).fetchall()
