@@ -1,6 +1,16 @@
-import { getState, getPage, getTotalPages, setPage, subscribe } from '../store'
+import { getState, getPage, getTotalPages, setPage, setSort, subscribe } from '../store'
 import type { Journal } from '../types'
 import { showJournalDetail } from './Modal'
+
+function quartileBadge(q: string | null): string {
+  if (!q) return ''
+  return `<span class="quartile-badge" data-quartile="${q}">${q}</span>`
+}
+
+function metricCell(j: Journal): string {
+  const val = j.cites_per_doc != null ? j.cites_per_doc.toFixed(2) : '—'
+  return `<span class="metric-value">${val}</span>${quartileBadge(j.quartile)}`
+}
 
 function oaBadge(oa: string | null): string {
   if (!oa) return ''
@@ -26,6 +36,7 @@ function renderRow(j: Journal): HTMLTableRowElement {
     <td><span class="area-text" title="${escHtml(j.area ?? '')}">${escHtml(j.area ?? '—')}</span></td>
     <td>${oaBadge(j.oa)}</td>
     <td>${qualisBadge(j.qualis_best)}</td>
+    <td class="metric-cell">${metricCell(j)}</td>
     <td class="td-actions">
       <button class="btn-detail" type="button" data-journal-id="${j.id}">Ver detalhes</button>
     </td>
@@ -105,7 +116,16 @@ export function createJournalTable(): HTMLElement {
             <th scope="col">Editora</th>
             <th scope="col">Área</th>
             <th scope="col">Acesso</th>
-            <th scope="col">Qualis</th>
+            <th scope="col" aria-sort="none" id="th-qualis">
+              <button class="th-sort" type="button" id="sort-qualis" title="Ordenar por melhor Qualis">
+                Qualis <span class="sort-arrow" aria-hidden="true"></span>
+              </button>
+            </th>
+            <th scope="col" aria-sort="none" id="th-metric">
+              <button class="th-sort" type="button" id="sort-cites" title="Citações por documento (2 anos)">
+                Cites/doc <span class="sort-arrow" aria-hidden="true"></span>
+              </button>
+            </th>
             <th scope="col">Ações</th>
           </tr>
         </thead>
@@ -121,6 +141,17 @@ export function createJournalTable(): HTMLElement {
   const stateMsg = wrapper.querySelector<HTMLDivElement>('#table-state-msg')!
   const countEl = wrapper.querySelector<HTMLParagraphElement>('#catalog-count')!
   const paginationEl = wrapper.querySelector<HTMLElement>('#pagination')!
+  // Sortable column headers: map each to its sort key + DOM nodes.
+  const sortable = [
+    { key: 'qualis_best' as const, th: '#th-qualis', btn: '#sort-qualis' },
+    { key: 'cites_per_doc' as const, th: '#th-metric', btn: '#sort-cites' },
+  ].map(c => ({
+    key: c.key,
+    th: wrapper.querySelector<HTMLTableCellElement>(c.th)!,
+    arrow: wrapper.querySelector<HTMLSpanElement>(`${c.btn} .sort-arrow`)!,
+    button: wrapper.querySelector<HTMLButtonElement>(c.btn)!,
+  }))
+  sortable.forEach(c => c.button.addEventListener('click', () => setSort(c.key)))
 
   function render(): void {
     const state = getState()
@@ -141,6 +172,15 @@ export function createJournalTable(): HTMLElement {
     }
 
     stateMsg.hidden = true
+
+    // Reflect current sort on each sortable column header
+    const sort = state.sort
+    sortable.forEach(c => {
+      const active = sort?.key === c.key
+      c.arrow.textContent = active ? (sort!.dir === 'desc' ? '↓' : '↑') : '↕'
+      c.th.classList.toggle('sorted', active)
+      c.th.setAttribute('aria-sort', active ? (sort!.dir === 'desc' ? 'descending' : 'ascending') : 'none')
+    })
 
     // Update count
     const total = state.filtered.length

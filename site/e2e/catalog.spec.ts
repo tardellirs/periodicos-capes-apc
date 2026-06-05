@@ -157,6 +157,69 @@ test.describe('Qualis chip filter', () => {
   })
 })
 
+test.describe('Quartile filter', () => {
+  test('Q1 chip activates, filters and reflects in URL', async ({ page }) => {
+    await page.goto(BASE)
+    await page.waitForSelector('.journal-table tbody tr', { timeout: 10000 })
+    const chip = page.locator('.qualis-chip[data-quartile="Q1"]')
+    await chip.click()
+    await page.waitForTimeout(300)
+    await expect(chip).toHaveClass(/active/)
+    await expect(chip).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.locator('#catalog-count')).toContainText('de 4.983')
+    expect(page.url()).toContain('quart=Q1')
+  })
+})
+
+test.describe('Min cites filter', () => {
+  test('filters journals below threshold', async ({ page }) => {
+    await page.goto(BASE)
+    await page.waitForSelector('.journal-table tbody tr', { timeout: 10000 })
+    await page.locator('#filter-mincites').fill('10')
+    await page.waitForTimeout(300)
+    await expect(page.locator('#catalog-count')).toContainText('de 4.983')
+    expect(page.url()).toContain('minc=10')
+  })
+})
+
+test.describe('Sort by cites/doc', () => {
+  test('clicking header sorts descending then ascending', async ({ page }) => {
+    await page.goto(BASE)
+    await page.waitForSelector('.journal-table tbody tr', { timeout: 10000 })
+
+    const firstMetric = () =>
+      page.locator('.journal-table tbody tr').first().locator('.metric-value').textContent()
+
+    await page.locator('#sort-cites').click()
+    await page.waitForTimeout(300)
+    await expect(page.locator('#th-metric')).toHaveAttribute('aria-sort', 'descending')
+    expect(page.url()).toContain('sort=cites_per_doc%3Adesc')
+    const topDesc = parseFloat((await firstMetric()) ?? '0')
+
+    await page.locator('#sort-cites').click()
+    await page.waitForTimeout(300)
+    await expect(page.locator('#th-metric')).toHaveAttribute('aria-sort', 'ascending')
+    const topAsc = parseFloat((await firstMetric()) ?? '0')
+
+    expect(topDesc).toBeGreaterThan(topAsc)
+  })
+})
+
+test.describe('Sort by Qualis', () => {
+  test('clicking header surfaces A1 first (desc)', async ({ page }) => {
+    await page.goto(BASE)
+    await page.waitForSelector('.journal-table tbody tr', { timeout: 10000 })
+
+    await page.locator('#sort-qualis').click()
+    await page.waitForTimeout(300)
+    await expect(page.locator('#th-qualis')).toHaveAttribute('aria-sort', 'descending')
+    expect(page.url()).toContain('sort=qualis_best%3Adesc')
+
+    const firstQualis = page.locator('.journal-table tbody tr').first().locator('.qualis-badge')
+    await expect(firstQualis).toHaveText('A1')
+  })
+})
+
 test.describe('Area filter', () => {
   test('populates area dropdown after data loads', async ({ page }) => {
     await page.goto(BASE)

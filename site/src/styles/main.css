@@ -395,6 +395,17 @@ button {
 .qualis-chip[data-stratum="B4"] { border-color: var(--qualis-b4); color: var(--qualis-b4); }
 .qualis-chip[data-stratum="C"]  { border-color: var(--qualis-c);  color: var(--qualis-c);  }
 
+/* Quartile filter chips — reuse chip shape, distinct container + colors */
+.quartile-chips { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+.qualis-chip[data-quartile="Q1"] { border-color: #00695c; color: #00695c; }
+.qualis-chip[data-quartile="Q2"] { border-color: #1565c0; color: #1565c0; }
+.qualis-chip[data-quartile="Q3"] { border-color: #e65100; color: #e65100; }
+.qualis-chip[data-quartile="Q4"] { border-color: #757575; color: #757575; }
+.qualis-chip[data-quartile="Q1"].active { background: #00695c; }
+.qualis-chip[data-quartile="Q2"].active { background: #1565c0; }
+.qualis-chip[data-quartile="Q3"].active { background: #e65100; }
+.qualis-chip[data-quartile="Q4"].active { background: #757575; }
+
 .qualis-chip.active {
   color: #fff;
 }
@@ -640,6 +651,67 @@ button {
 .qualis-badge[data-stratum="B3"] { background: var(--qualis-b3); }
 .qualis-badge[data-stratum="B4"] { background: var(--qualis-b4); }
 .qualis-badge[data-stratum="C"]  { background: var(--qualis-c);  }
+
+/* Citation metric column */
+.metric-cell { white-space: nowrap; }
+
+.metric-value {
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+.quartile-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 22px;
+  margin-left: 0.375rem;
+  padding: 0 0.35rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #fff;
+  vertical-align: middle;
+}
+
+.quartile-badge[data-quartile="Q1"] { background: #00695c; }
+.quartile-badge[data-quartile="Q2"] { background: #1565c0; }
+.quartile-badge[data-quartile="Q3"] { background: #e65100; }
+.quartile-badge[data-quartile="Q4"] { background: #757575; }
+
+/* Sortable header button */
+.th-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  padding: 0;
+}
+
+.th-sort:hover { opacity: 0.85; }
+
+.sort-arrow {
+  font-size: 0.9em;
+  opacity: 0.45;
+  width: 1ch;
+  text-align: center;
+}
+
+.journal-table th.sorted .sort-arrow { opacity: 1; }
+
+.metric-source {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+}
 
 /* Actions column */
 .td-actions { text-align: center; }

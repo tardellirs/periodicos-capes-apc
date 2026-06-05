@@ -1,6 +1,6 @@
-import type { Journal, Filters } from './types'
+import type { Journal, Filters, Sort, SortKey } from './types'
 import { EMPTY_FILTERS, PAGE_SIZE } from './types'
-import { applyFilters, getUniqueAreas } from './filters'
+import { applyFilters, sortJournals, getUniqueAreas } from './filters'
 
 type Listener = () => void
 
@@ -9,6 +9,7 @@ interface State {
   filtered: Journal[]
   areas: string[]
   filters: Filters
+  sort: Sort | null
   page: number
   loading: boolean
   error: string | null
@@ -19,6 +20,7 @@ const state: State = {
   filtered: [],
   areas: [],
   filters: { ...EMPTY_FILTERS },
+  sort: null,
   page: 1,
   loading: true,
   error: null,
@@ -55,7 +57,7 @@ export async function loadData(): Promise<void> {
     const data: Journal[] = await res.json()
     state.all = data
     state.areas = getUniqueAreas(data)
-    state.filtered = data
+    state.filtered = recompute()
     state.loading = false
   } catch (err) {
     state.loading = false
@@ -64,10 +66,28 @@ export async function loadData(): Promise<void> {
   notify()
 }
 
+// Recompute the visible list from filters + sort. Single place both run.
+function recompute(): Journal[] {
+  return sortJournals(applyFilters(state.all, state.filters), state.sort)
+}
+
 export function setFilters(partial: Partial<Filters>): void {
   Object.assign(state.filters, partial)
   state.page = 1
-  state.filtered = applyFilters(state.all, state.filters)
+  state.filtered = recompute()
+  syncURL()
+  notify()
+}
+
+// Toggle sort: clicking the active key flips direction; a new key starts desc.
+export function setSort(key: SortKey): void {
+  if (state.sort && state.sort.key === key) {
+    state.sort = { key, dir: state.sort.dir === 'desc' ? 'asc' : 'desc' }
+  } else {
+    state.sort = { key, dir: 'desc' }
+  }
+  state.page = 1
+  state.filtered = recompute()
   syncURL()
   notify()
 }
@@ -82,7 +102,7 @@ export function setPage(page: number): void {
 export function clearFilters(): void {
   state.filters = { ...EMPTY_FILTERS }
   state.page = 1
-  state.filtered = state.all
+  state.filtered = recompute()
   syncURL()
   notify()
 }
@@ -97,7 +117,10 @@ function syncURL(): void {
   if (f.publishers.length) params.set('pub', f.publishers.join(','))
   if (f.areas.length) params.set('area', f.areas.join('~'))
   if (f.qualis.length) params.set('qualis', f.qualis.join(','))
+  if (f.quartiles.length) params.set('quart', f.quartiles.join(','))
+  if (f.minCites != null) params.set('minc', String(f.minCites))
   if (f.oa) params.set('oa', f.oa)
+  if (state.sort) params.set('sort', `${state.sort.key}:${state.sort.dir}`)
   if (state.page > 1) params.set('page', String(state.page))
   const qs = params.toString()
   history.replaceState(null, '', qs ? `?${qs}` : location.pathname)
@@ -111,7 +134,16 @@ export function restoreFromURL(): void {
     publishers: params.get('pub') ? params.get('pub')!.split(',') : [],
     areas: params.get('area') ? params.get('area')!.split('~') : [],
     qualis: params.get('qualis') ? params.get('qualis')!.split(',') : [],
+    quartiles: params.get('quart') ? params.get('quart')!.split(',') : [],
+    minCites: params.get('minc') != null ? Number(params.get('minc')) : null,
     oa: params.get('oa') ?? '',
+  }
+  const sortParam = params.get('sort')
+  if (sortParam) {
+    const [key, dir] = sortParam.split(':')
+    if (key === 'cites_per_doc' || key === 'title' || key === 'qualis_best') {
+      state.sort = { key, dir: dir === 'asc' ? 'asc' : 'desc' }
+    }
   }
   state.page = parseInt(params.get('page') ?? '1', 10)
 }

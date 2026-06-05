@@ -18,6 +18,12 @@ export interface Journal {
   qualis_best: string | null
   impact_factor: number | null
   acronym: string | null
+  // Uniform citation metrics (same source for every journal — see add_metrics.py)
+  cites_per_doc: number | null   // citations/doc, 2-year window
+  quartile: string | null        // SJR best quartile Q1..Q4
+  sjr: number | null
+  h_index: number | null
+  metric_source: string | null   // "scimago" | "openalex"
   qualis: QualisEntry[]
 }
 
@@ -27,6 +33,8 @@ export interface Filters {
   publishers: string[]
   areas: string[] // knowledge areas (multi-select)
   qualis: string[]
+  quartiles: string[]   // SJR quartile (multi-select)
+  minCites: number | null  // minimum cites/doc
   oa: string
 }
 
@@ -36,12 +44,22 @@ export const EMPTY_FILTERS: Filters = {
   publishers: [],
   areas: [],
   qualis: [],
+  quartiles: [],
+  minCites: null,
   oa: '',
+}
+
+export type SortKey = 'title' | 'cites_per_doc' | 'qualis_best'
+export interface Sort {
+  key: SortKey
+  dir: 'asc' | 'desc'
 }
 
 export const PUBLISHERS = ['ACM', 'ACS', 'Elsevier', 'IEEE', 'Royal Society', 'Springer Nature', 'Wiley']
 
 export const QUALIS_STRATA = ['A1', 'A2', 'A3', 'A4', 'B1', 'B2', 'B3', 'B4', 'C']
+
+export const QUARTILES = ['Q1', 'Q2', 'Q3', 'Q4']
 
 export const STRATA_COLORS: Record<string, string> = {
   A1: '#00695c',

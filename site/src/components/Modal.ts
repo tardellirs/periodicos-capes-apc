@@ -35,6 +35,13 @@ function qualisColor(stratum: string): string {
   return STRATA_COLORS[stratum] ?? '#616161'
 }
 
+// Small provenance hint next to the citation metric (Scimago vs OpenAlex).
+function sourceTag(src: string | null): string {
+  if (!src) return ''
+  const label = src === 'scimago' ? 'Scimago' : src === 'openalex' ? 'OpenAlex' : src
+  return ` <span class="metric-source" title="Fonte da métrica">· ${label}</span>`
+}
+
 export function showJournalDetail(journal: Journal): void {
   const dlg = getDialog()
 
@@ -103,9 +110,25 @@ export function showJournalDetail(journal: Journal): void {
           <label>Licença</label>
           <span style="font-family:var(--font-body);font-size:0.875rem">${escHtml(journal.license ?? '—')}</span>
         </div>
+        <div class="meta-item">
+          <label>Cites/doc (2 anos)${sourceTag(journal.metric_source)}</label>
+          <span style="font-family:var(--font-body)">${journal.cites_per_doc != null ? journal.cites_per_doc.toFixed(2) : '—'}</span>
+        </div>
+        <div class="meta-item">
+          <label>Quartil (SJR)</label>
+          <span>${journal.quartile ? `<span class="quartile-badge" data-quartile="${journal.quartile}">${journal.quartile}</span>` : '—'}</span>
+        </div>
+        <div class="meta-item">
+          <label>SJR</label>
+          <span style="font-family:var(--font-body)">${journal.sjr != null ? journal.sjr.toFixed(3) : '—'}</span>
+        </div>
+        <div class="meta-item">
+          <label>h-index</label>
+          <span style="font-family:var(--font-body)">${journal.h_index ?? '—'}</span>
+        </div>
         ${journal.impact_factor != null ? `
         <div class="meta-item">
-          <label>Impact Factor</label>
+          <label>Impact Factor (oficial)</label>
           <span style="font-family:var(--font-body)">${impactText(journal.impact_factor)}</span>
         </div>` : ''}
         <div class="meta-item">

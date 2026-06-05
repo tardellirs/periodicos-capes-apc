@@ -1,6 +1,6 @@
 import { getState, setFilters, clearFilters, subscribe } from '../store'
 import type { Filters } from '../types'
-import { PUBLISHERS, QUALIS_STRATA } from '../types'
+import { PUBLISHERS, QUALIS_STRATA, QUARTILES } from '../types'
 
 export function createFilterSidebar(): HTMLElement {
   const sidebar = document.createElement('aside')
@@ -101,6 +101,34 @@ export function createFilterSidebar(): HTMLElement {
               >${s}</button>
             `).join('')}
           </div>
+        </div>
+
+        <div class="filter-group">
+          <span class="filter-label">Quartil (SJR)</span>
+          <div class="quartile-chips" id="quartile-chips" role="group" aria-label="Filtro por quartil SJR">
+            ${QUARTILES.map(q => `
+              <button
+                class="qualis-chip"
+                type="button"
+                data-quartile="${q}"
+                aria-pressed="false"
+              >${q}</button>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="filter-mincites">Cites/doc mínimo</label>
+          <input
+            class="filter-input"
+            type="number"
+            id="filter-mincites"
+            name="minCites"
+            placeholder="Ex: 3"
+            min="0"
+            step="0.5"
+            inputmode="decimal"
+          />
         </div>
 
       </div>
@@ -220,6 +248,27 @@ export function createFilterSidebar(): HTMLElement {
     })
   })
 
+  // Quartile chips
+  const quartileChips = sidebar.querySelectorAll<HTMLButtonElement>('#quartile-chips .qualis-chip')
+  quartileChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const q = chip.dataset.quartile!
+      const current = getState().filters.quartiles
+      const next = current.includes(q) ? current.filter(s => s !== q) : [...current, q]
+      setFilters({ quartiles: next })
+    })
+  })
+
+  // Min cites/doc (debounced)
+  const minCitesInput = sidebar.querySelector<HTMLInputElement>('#filter-mincites')!
+  minCitesInput.addEventListener('input', () => {
+    clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(() => {
+      const v = minCitesInput.value.trim()
+      setFilters({ minCites: v === '' ? null : Number(v) })
+    }, 200)
+  })
+
   // Clear button
   sidebar.querySelector('#btn-clear-filters')!.addEventListener('click', () => {
     clearFilters()
@@ -253,6 +302,15 @@ export function createFilterSidebar(): HTMLElement {
       chip.classList.toggle('active', active)
       chip.setAttribute('aria-pressed', String(active))
     })
+
+    quartileChips.forEach(chip => {
+      const active = filters.quartiles.includes(chip.dataset.quartile!)
+      chip.classList.toggle('active', active)
+      chip.setAttribute('aria-pressed', String(active))
+    })
+
+    const minStr = filters.minCites != null ? String(filters.minCites) : ''
+    if (minCitesInput.value !== minStr) minCitesInput.value = minStr
   }
 
   // Populate areas when data loads
